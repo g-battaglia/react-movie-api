@@ -8,14 +8,16 @@ const App = () => {
   const [heading, setHeading] = useState("Please insert a movie title!");
   const [movieCards, setMovieCards] = useState("");
 
-  async function getFromApi(movieName, sortType, stateFn) {
-    const omdbURL = "https://movie-api-bt.herokuapp.com/" + movieName + "?l=20";
+  async function getFromApi(movieName, sortType, decade, stateFn) {
+    let searchLenght = "?l=20";
+    if (decade !== "All") {
+      searchLenght = "?l=50";
+      console.log("Long search.");
+    }
+    const omdbURL = "https://movie-api-bt.herokuapp.com/" + movieName + searchLenght;
     const res = await fetch(omdbURL);
     const data = await res.json();
-    if (data.length === 0) {
-      setHeading("No result");
-      return;
-    }
+
     setHeading("Movies like " + movieName);
     switch (sortType) {
       case "Title":
@@ -29,7 +31,19 @@ const App = () => {
         break;
       // no default
     }
-    const mapData = data.map((movie) => (
+    let filterdData = data.filter((movie) => !movie.Error);
+
+    if (decade !== "All" && decade !== "All +50") {
+      console.log(+decade + 9);
+      filterdData = filterdData.filter((movie) => +decade < movie.Year && movie.Year < +decade + 9);
+    }
+
+    if (filterdData.length === 0) {
+      setHeading("No result");
+      return;
+    }
+
+    const mapData = filterdData.map((movie) => (
       <MovieCard
         title={movie.Title}
         description={movie.Plot}
@@ -47,11 +61,12 @@ const App = () => {
   function handleClick(e) {
     let formValue = e.target.querySelector(".movieName").value;
     let selectValue = e.target.querySelector(".sortTypeInput").value;
+    let dacadeValue = e.target.querySelector(".sortDecadeInput").value;
     console.log(selectValue);
     console.log(formValue);
     setHeading("Loading");
     setMovieCards("");
-    getFromApi(formValue, selectValue, setMovieCards);
+    getFromApi(formValue, selectValue, dacadeValue, setMovieCards);
   }
 
   return (
