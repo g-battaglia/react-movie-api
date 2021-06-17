@@ -1,25 +1,28 @@
 import { useState } from "react";
 import Navbar from "./components/navbar/navbar-component";
-import MovieCard from "./components/movie-card/movie-card.component";
 import CardList from "./components/card-list/card-list.component";
 
 const App = () => {
-  // const desc = "Some quick example text to build on the card title and make up the bulk of the card's content.";
-  // const a = <MovieCard title="Colorado" description={desc} />;
+  const [movies, setMovies] = useState([]);
   const [heading, setHeading] = useState("Please insert a movie title!");
-  const [movieCards, setMovieCards] = useState("");
+  const [formValue, setFormValue] = useState("Point Break");
+  const [decadeValue, setDecadeValue] = useState("All");
+  const [sortType, setSortType] = useState("Title");
 
-  async function getFromApi(movieName, sortType, decade, stateFn) {
+  async function getFromApi() {
+    setHeading("Loading");
     let searchLenght = "?l=20";
-    if (decade !== "All") {
+    console.log(decadeValue);
+    if (decadeValue !== "All") {
       searchLenght = "?l=50";
       console.log("Long search.");
     }
-    const omdbURL = "https://movie-api-bt.herokuapp.com/" + movieName + searchLenght;
+    const omdbURL =
+      "https://movie-api-bt.herokuapp.com/" + formValue + searchLenght;
     const res = await fetch(omdbURL);
     const data = await res.json();
 
-    setHeading("Movies like " + movieName);
+    setHeading("Movies like " + formValue);
     switch (sortType) {
       case "Title":
         data.sort((a, b) => (a.Title > b.Title ? 1 : -1));
@@ -32,50 +35,34 @@ const App = () => {
         break;
       // no default
     }
-    let filterdData = data.filter((movie) => !movie.Error);
+    let filteredData = data.filter((movie) => !movie.Error);
 
-    if (decade !== "All" && decade !== "All +50") {
-      console.log(+decade + 9);
-      filterdData = filterdData.filter((movie) => +decade < movie.Year && movie.Year < +decade + 9);
+    if (decadeValue !== "All" && decadeValue !== "All +50") {
+      console.log(+decadeValue + 9);
+      filteredData = filteredData.filter(
+        (movie) => +decadeValue < movie.Year && movie.Year < +decadeValue + 9
+      );
     }
 
-    if (filterdData.length === 0) {
+    if (filteredData.length === 0) {
       setHeading("No result");
       return;
     }
-
-    const mapData = filterdData.map((movie) => (
-      <MovieCard
-        title={movie.Title}
-        description={movie.Plot}
-        director={movie.Director}
-        year={movie.Year}
-        rating={movie.imdbRating}
-        poster={movie.Poster}
-        key={movie.imdbID}
-      />
-    ));
-    console.log(data);
-    stateFn(mapData);
-  }
-
-  function handleClick(e) {
-    let formValue = e.target.querySelector(".movieName").value;
-    let selectValue = e.target.querySelector(".sortTypeInput").value;
-    let dacadeValue = e.target.querySelector(".sortDecadeInput").value;
-    console.log(selectValue);
-    console.log(formValue);
-    setHeading("Loading");
-    setMovieCards("");
-    getFromApi(formValue, selectValue, dacadeValue, setMovieCards);
+    setMovies(filteredData);
   }
 
   return (
     <>
-      <Navbar onClickFn={handleClick} />
+      <Navbar
+        getFromApi={getFromApi}
+        formValue={formValue}
+        setFormValue={setFormValue}
+        setDecadeValue={setDecadeValue}
+        setSortType={setSortType}
+      />
       <main className="container d-flex align-items-center flex-column">
         <h1 className="mt-4 mb-5">{heading}</h1>
-        <CardList>{movieCards}</CardList>
+        <CardList movies={movies}></CardList>
       </main>
     </>
   );

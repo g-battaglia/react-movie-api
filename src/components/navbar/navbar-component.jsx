@@ -1,7 +1,13 @@
-import { useState } from "react";
+// import { useState } from "react";
 import React from "react";
 
-const Navbar = ({ onClickFn }) => {
+const Navbar = ({
+  getFromApi,
+  formValue,
+  setFormValue,
+  setDecadeValue,
+  setSortType,
+}) => {
   const searchOptions = ["Rating", "Title", "Year", "none"];
   const decadeOptions = [
     "All",
@@ -19,12 +25,10 @@ const Navbar = ({ onClickFn }) => {
     "2020",
     "All +50",
   ];
-  const [inputValue, setInputValue] = useState("Point Break");
 
   function submitHandler(e) {
     e.preventDefault();
-    onClickFn(e);
-    setInputValue(e.target.firstChild.value);
+    getFromApi();
   }
 
   return (
@@ -39,17 +43,25 @@ const Navbar = ({ onClickFn }) => {
             className="form-control me-2 movieName"
             placeholder="Search"
             type="search"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+            value={formValue}
+            onChange={(e) => setFormValue(e.target.value)}
           />
-          <select className="form-select me-2 sortTypeInput" aria-label="Default select example">
+          <select
+            className="form-select me-2 sortTypeInput"
+            aria-label="Default select example"
+            onChange={(e) => setSortType(e.target.value)}
+          >
             {searchOptions.map((option) => (
               <option value={option} key={option}>
                 {option}
               </option>
             ))}
           </select>
-          <select className="form-select me-2 sortDecadeInput" aria-label="Default select example">
+          <select
+            className="form-select me-2 sortDecadeInput"
+            aria-label="Default select example"
+            onChange={(e) => setDecadeValue(e.target.value)}
+          >
             {decadeOptions.map((option) => (
               <option value={option} key={option}>
                 {option}
