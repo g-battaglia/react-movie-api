@@ -1,6 +1,7 @@
 import { useState } from "react";
-import Navbar from "./Navbar";
-import MovieCard from "./MovieCard";
+import Navbar from "./components/navbar/navbar-component";
+import MovieCard from "./components/movie-card/movie-card.component";
+import CardList from "./components/card-list/card-list.component";
 
 const App = () => {
   // const desc = "Some quick example text to build on the card title and make up the bulk of the card's content.";
@@ -74,7 +75,7 @@ const App = () => {
       <Navbar onClickFn={handleClick} />
       <main className="container d-flex align-items-center flex-column">
         <h1 className="mt-4 mb-5">{heading}</h1>
-        <div className="movie-container d-flex flex-wrap gap-5 justify-content-center">{movieCards}</div>
+        <CardList>{movieCards}</CardList>
       </main>
     </>
   );
