@@ -7,22 +7,26 @@ const App = () => {
   const [heading, setHeading] = useState("Please insert a movie title!");
   const [formValue, setFormValue] = useState("Point Break");
   const [decadeValue, setDecadeValue] = useState("All");
-  const [sortType, setSortType] = useState("Title");
+  const [sortType, setSortType] = useState("Rating");
 
   async function getFromApi() {
     setHeading("Loading");
     let searchLenght = "?l=20";
-    console.log(decadeValue);
-    if (decadeValue !== "All") {
-      searchLenght = "?l=50";
-      console.log("Long search.");
-    }
     const omdbURL =
       "https://movie-api-bt.herokuapp.com/" + formValue + searchLenght;
     const res = await fetch(omdbURL);
-    const data = await res.json();
-
+    const json = await res.json();
+    const data = await json;
     setHeading("Movies like " + formValue);
+    let filteredData = data.filter((movie) => !movie.Error);
+    if (filteredData.length === 0) {
+      setHeading("No result");
+      return;
+    }
+    setMovies(filteredData);
+  }
+
+  function orderByType(data) {
     switch (sortType) {
       case "Title":
         data.sort((a, b) => (a.Title > b.Title ? 1 : -1));
@@ -35,21 +39,17 @@ const App = () => {
         break;
       // no default
     }
-    let filteredData = data.filter((movie) => !movie.Error);
-
-    if (decadeValue !== "All" && decadeValue !== "All +50") {
-      console.log(+decadeValue + 9);
-      filteredData = filteredData.filter(
-        (movie) => +decadeValue < movie.Year && movie.Year < +decadeValue + 9
-      );
-    }
-
-    if (filteredData.length === 0) {
-      setHeading("No result");
-      return;
-    }
-    setMovies(filteredData);
+    return data;
   }
+
+  const filteredMovies = movies.filter((movie) => {
+    if (decadeValue === "All") {
+      return true;
+    }
+    return +decadeValue < movie.Year && movie.Year < +decadeValue + 9;
+  });
+
+  const orderedMovies = orderByType(filteredMovies);
 
   return (
     <>
@@ -58,11 +58,12 @@ const App = () => {
         formValue={formValue}
         setFormValue={setFormValue}
         setDecadeValue={setDecadeValue}
+        decadeValue={decadeValue}
         setSortType={setSortType}
       />
       <main className="container d-flex align-items-center flex-column">
         <h1 className="mt-4 mb-5">{heading}</h1>
-        <CardList movies={movies}></CardList>
+        <CardList movies={orderedMovies}></CardList>
       </main>
     </>
   );

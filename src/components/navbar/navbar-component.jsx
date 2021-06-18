@@ -5,6 +5,7 @@ const Navbar = ({
   getFromApi,
   formValue,
   setFormValue,
+  decadeValue,
   setDecadeValue,
   setSortType,
 }) => {
@@ -23,7 +24,6 @@ const Navbar = ({
     "2000",
     "2010",
     "2020",
-    "All +50",
   ];
 
   function submitHandler(e) {
