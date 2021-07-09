@@ -10,6 +10,7 @@ const App = () => {
   const [sortType, setSortType] = useState("Rating");
 
   async function getFromApi() {
+    console.log("fetch");
     setHeading("Loading");
     let searchLenght = "?l=20";
     const omdbURL =
@@ -50,6 +51,7 @@ const App = () => {
   });
 
   const orderedMovies = orderByType(filteredMovies);
+  console.log(orderedMovies);
 
   return (
     <>
